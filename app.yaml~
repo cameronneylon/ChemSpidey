@@ -1,4 +1,4 @@
-application: ChemSpidey
+application: grauniady
 version: 1
 runtime: python
 api_version: 1
@@ -9,4 +9,4 @@ handlers:
   upload: public/(.*)
 
 - url: /_wave/.*
-  script: ChemSpidey.py
+  script: wave.py
