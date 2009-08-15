@@ -21,18 +21,20 @@ import ChemSpiPy
 def OnBlipSubmitted(properties, context):
 	blip = context.GetBlipById(properties['blipId'])
 	contents = blip.GetDocument().GetText()
-	if '?chem' in contents:
-		query = '"%s"' % contents.replace('?chem', '').replace('"', ' ').replace('\n', '')
-		#compound = ChemSpiPy.simplesearch(query)
-		#url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
-		#content = query + "(" + url +")"
-		content = query
+	if '?chem(' in contents:
+		start = contents.find('?chem(') + 6
+		end = contents.find(')', start)
+		query = contents[start:end]
+		compound = ChemSpiPy.simplesearch(query)
+		url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
+		insert = query + " (" + url +")"
+		content = contents.replace("?chem(" + query + ")", insert)
 		blip.GetDocument().SetText(content)
 
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
   root_wavelet = context.GetRootWavelet()
-  root_wavelet.CreateBlip().GetDocument().SetText("I'm alive!")
+  root_wavelet.CreateBlip().GetDocument().SetText("Hello, I'm ChemSpidey, I will convert text of the form ?chem(chemicalName) to a link to ChemSpider")
 
 
 
