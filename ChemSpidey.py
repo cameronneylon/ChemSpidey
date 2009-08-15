@@ -28,6 +28,11 @@ def OnBlipSubmitted(properties, context):
 		content = query + "(" + url +")"
 		blip.GetDocument().SetText(content)
 
+def OnRobotAdded(properties, context):
+  """Invoked when the robot has been added."""
+  root_wavelet = context.GetRootWavelet()
+  root_wavelet.CreateBlip().GetDocument().SetText("I'm alive!")
+
 
 
 if __name__ == '__main__':
