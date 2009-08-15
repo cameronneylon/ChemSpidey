@@ -23,9 +23,10 @@ def OnBlipSubmitted(properties, context):
 	contents = blip.GetDocument().GetText()
 	if '?chem' in contents:
 		query = '"%s"' % contents.replace('?chem', '').replace('"', ' ').replace('\n', '')
-		compound = ChemSpiPy.simplesearch(query)
-		url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
-		content = query + "(" + url +")"
+		#compound = ChemSpiPy.simplesearch(query)
+		#url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
+		#content = query + "(" + url +")"
+		content = query
 		blip.GetDocument().SetText(content)
 
 def OnRobotAdded(properties, context):
@@ -38,6 +39,9 @@ def OnRobotAdded(properties, context):
 if __name__ == '__main__':
   ChemSpidey = robot.Robot('chemspidey',
                          image_url='http://www.chemspider.com/ImagesHandler.ashx?id=236',
+			 version = '1',
                          profile_url='http://www.google.com')
   ChemSpidey.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmitted)
+  ChemSpidey.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
+
   ChemSpidey.Run(debug=True)
