@@ -17,19 +17,34 @@ from waveapi import robot
 
 import ChemSpiPy
 
+def SetManualLink(blip, text, url):
+    """Aims to find text in the passed blip and then create link via setting annotation."""
+
+    #blip = context.GetBlipByID(properties['blipID']
+    contents = blip.GetDocument().GetText()
+    if text in contents:
+        start = contents.find(text)
+        range = [start: (start + len(text))]
+	blip.GetDocument().SetAnnotation(range, 'link/manual', url)
+
+    else:
+        pass
 
 def OnBlipSubmitted(properties, context):
 	blip = context.GetBlipById(properties['blipId'])
 	contents = blip.GetDocument().GetText()
-	if '?chem(' in contents:
-		start = contents.find('?chem(') + 6
-		end = contents.find(')', start)
-		query = contents[start:end]
+	key = 'chem:'
+	endkey = ':'
+	if key in contents:
+		start = contents.find(key)
+		end = contents.find(end, (start + len(key))
+		range = [start: end]
+		query = contents[(start + len(key): end]
 		compound = ChemSpiPy.simplesearch(query)
 		url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
-		insert = query + " (" + url +")"
-		content = contents.replace("?chem(" + query + ")", insert)
-		blip.GetDocument().SetText(content)
+
+		insert = query + " (csid:" + compound  +")"
+		blip.GetDocument().InsertText(range, insert)
 
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
