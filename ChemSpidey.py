@@ -18,10 +18,10 @@ import waveapi.document as doc
 
 import ChemSpiPy
 
-def SetManualLink(blip, text, url, textrange):
+def SetManualLink(blip, text, url):
     """Aims to find text in the passed blip and then create link via setting annotation."""
 
-    blip = context.GetBlipByID(properties['blipID']
+    #blip = context.GetBlipByID(properties['blipID']
     contents = blip.GetDocument().GetText()
     if text in contents:
         r = doc.Range()
@@ -37,16 +37,20 @@ def OnBlipSubmitted(properties, context):
 	contents = blip.GetDocument().GetText()
 	key = 'chem:'
 	endkey = ':'
-	while key in contents:
+
+	if key in contents:
 		r = doc.Range()
 		r.start = contents.find(key)
-		r.end = contents.find(endkey, (r.start + len(key) + 1))
-		query = contents[(r.start + len(key)): r.end]
-		compound = ChemSpiPy.simplesearch(query)
-		url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
+		r.end = contents.find(endkey, (r.start + len(key))) + 1
+		query = contents[(r.start + len(key)): (r.end-1)]
 
-		insert = query + " (csid:" + compound  +")"
-		blip.GetDocument().SetTextInRange(r, insert)
+		if r.end > r.start:
+		    compound = ChemSpiPy.simplesearch(query)
+		    url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
+
+		    insert = query + " (csid:" + compound  +")"
+		    blip.GetDocument().SetTextInRange(r, insert)
+		    SetManualLink(blip, compound, url) 
 
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
