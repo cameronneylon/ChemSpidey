@@ -18,28 +18,29 @@ import waveapi.document as doc
 
 import ChemSpiPy
 
-#def SetManualLink(blip, text, url):
-    #"""Aims to find text in the passed blip and then create link via setting annotation."""
+def SetManualLink(blip, text, url, textrange):
+    """Aims to find text in the passed blip and then create link via setting annotation."""
 
-    #blip = context.GetBlipByID(properties['blipID']
-    #contents = blip.GetDocument().GetText()
-    #if text in contents:
-        #start = contents.find(text)
-        #r = doc.Range(start + len(text))]
-	#blip.GetDocument().SetAnnotation(range, 'link/manual', url)
+    blip = context.GetBlipByID(properties['blipID']
+    contents = blip.GetDocument().GetText()
+    if text in contents:
+        r = doc.Range()
+	r.start = contents.find(text)
+        r.end = r.start + len(text)
+	blip.GetDocument().SetAnnotation(range, 'link/manual', url)
 
-    #else:
-        #pass
+    else:
+        pass
 
 def OnBlipSubmitted(properties, context):
 	blip = context.GetBlipById(properties['blipId'])
 	contents = blip.GetDocument().GetText()
 	key = 'chem:'
 	endkey = ':'
-	if key in contents:
+	while key in contents:
 		r = doc.Range()
 		r.start = contents.find(key)
-		r.end = contents.find(endkey, (r.start + len(key)))
+		r.end = contents.find(endkey, (r.start + len(key) + 1))
 		query = contents[(r.start + len(key)): r.end]
 		compound = ChemSpiPy.simplesearch(query)
 		url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
