@@ -21,16 +21,14 @@ import ChemSpiPy
 def SetManualLink(blip, text, url):
     """Aims to find text in the passed blip and then create link via setting annotation."""
 
-    #blip = context.GetBlipByID(properties['blipID']
     contents = blip.GetDocument().GetText()
     if text in contents:
         r = doc.Range()
 	r.start = contents.find(text)
         r.end = r.start + len(text)
-	blip.GetDocument().SetAnnotation(range, 'link/manual', url)
+	blip.GetDocument().SetAnnotation(r, 'link/manual', url)
 
-    else:
-        pass
+
 
 def OnBlipSubmitted(properties, context):
 	blip = context.GetBlipById(properties['blipId'])
@@ -55,14 +53,14 @@ def OnBlipSubmitted(properties, context):
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
   root_wavelet = context.GetRootWavelet()
-  root_wavelet.CreateBlip().GetDocument().SetText("Hello, I'm ChemSpidey, I will convert text of the form ?chem(chemicalName) to a link to ChemSpider")
+  root_wavelet.CreateBlip().GetDocument().SetText("Hello, I'm ChemSpidey, I will convert text of the form chem:chemicalName: to a link to ChemSpider")
 
 
 
 if __name__ == '__main__':
-  ChemSpidey = robot.Robot('cameronneylon-test',
+  ChemSpidey = robot.Robot('chemspidey',
                          image_url='http://www.chemspider.com/ImagesHandler.ashx?id=236',
-			 version = '1.1',
+			 version = '2',
                          profile_url='http://www.google.com')
   ChemSpidey.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmitted)
   ChemSpidey.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
