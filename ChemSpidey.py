@@ -37,21 +37,25 @@ def OnBlipSubmitted(properties, context):
     key = '(chem)'
     delim = '(\\[.{1,40}\\])'
 
-    usertextregex = re.compile(key+delim, re.IGNORECASE|re.DOTALL)
-    usertextlist = usertextregex.finditer(contents)
+    compiledregex = re.compile(key+delim, re.IGNORECASE|re.DOTALL)
+    usertextlist = compiledregex.finditer(contents)
 
     if len(usertextlist) > 0:
-        for chemical in usertextlist: 
-	    r = doc.Range(chemical.start, (chemical.end + 1))
-	    query = contents[(r.start + len(key)): (r.end-1)]
+    count = 0
+    changeslist = []
+        for chemicalname in usertextlist: 
+	    r = doc.Range(chemicalname.start, (chemicalname.end + 1))
+	    query = chemicalname.group(2)[1:-2]
+	    compound = ChemSpiPy.simplesearch(query)
+	    url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
+	    insert = query + " (csid:" + compound  +")"
+	    changeslist.append = [r, insert, compound, url]
+	    count = count + 1
 
-		if r.end > r.start:
-		    compound = ChemSpiPy.simplesearch(query)
-		    url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
-
-		    insert = query + " (csid:" + compound  +")"
-		    blip.GetDocument().SetTextInRange(r, insert)
-		    SetManualLink(blip, compound, url) 
+	while count != 0:
+	    blip.GetDocument().SetTextInRange(changeslist[count][0], changeslist[count][1])
+	    SetManualLink(blip, changeslist[count][2], changeslist[count][3]) 
+	    count = count - 1
 
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
