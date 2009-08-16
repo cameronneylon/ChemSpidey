@@ -56,7 +56,7 @@ def OnRobotAdded(properties, context):
 if __name__ == '__main__':
   ChemSpidey = robot.Robot('chemspidey',
                          image_url='http://www.chemspider.com/ImagesHandler.ashx?id=236',
-			 version = '1',
+			 version = '1.1',
                          profile_url='http://www.google.com')
   ChemSpidey.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmitted)
   ChemSpidey.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
