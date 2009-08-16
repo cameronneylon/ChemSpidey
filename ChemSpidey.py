@@ -54,7 +54,7 @@ def OnRobotAdded(properties, context):
 
 
 if __name__ == '__main__':
-  ChemSpidey = robot.Robot('chemspidey',
+  ChemSpidey = robot.Robot('chemspidey-test',
                          image_url='http://www.chemspider.com/ImagesHandler.ashx?id=236',
 			 version = '1.1',
                          profile_url='http://www.google.com')
