@@ -15,6 +15,7 @@ from waveapi import events
 from waveapi import model
 from waveapi import robot
 import waveapi.document as doc
+import re
 
 import ChemSpiPy
 
@@ -31,16 +32,18 @@ def SetManualLink(blip, text, url):
 
 
 def OnBlipSubmitted(properties, context):
-	blip = context.GetBlipById(properties['blipId'])
-	contents = blip.GetDocument().GetText()
-	key = 'chem:'
-	endkey = ':'
+    blip = context.GetBlipById(properties['blipId'])
+    contents = blip.GetDocument().GetText()
+    key = '(chem)'
+    delim = '(\\[.{1,40}\\])'
 
-	if key in contents:
-		r = doc.Range()
-		r.start = contents.find(key)
-		r.end = contents.find(endkey, (r.start + len(key))) + 1
-		query = contents[(r.start + len(key)): (r.end-1)]
+    usertextregex = re.compile(key+delim, re.IGNORECASE|re.DOTALL)
+    usertextlist = usertextregex.finditer(contents)
+
+    if len(usertextlist) > 0:
+        for chemical in usertextlist: 
+	    r = doc.Range(chemical.start, (chemical.end + 1))
+	    query = contents[(r.start + len(key)): (r.end-1)]
 
 		if r.end > r.start:
 		    compound = ChemSpiPy.simplesearch(query)
