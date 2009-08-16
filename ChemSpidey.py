@@ -14,6 +14,7 @@ __author__ = 'cameron.neylon@stfc.ac.uk (Cameron Neylon)'
 from waveapi import events
 from waveapi import model
 from waveapi import robot
+import waveapi.document as doc
 
 import ChemSpiPy
 
@@ -24,7 +25,7 @@ import ChemSpiPy
     #contents = blip.GetDocument().GetText()
     #if text in contents:
         #start = contents.find(text)
-        #range = [start:(start + len(text))]
+        #r = doc.Range(start + len(text))]
 	#blip.GetDocument().SetAnnotation(range, 'link/manual', url)
 
     #else:
@@ -36,15 +37,15 @@ def OnBlipSubmitted(properties, context):
 	key = 'chem:'
 	endkey = ':'
 	if key in contents:
-		start = contents.find(key)
-		end = contents.find(end, (start + len(key))
-		range = [start: end]
-		query = contents[(start + len(key): end]
+		r = doc.Range()
+		r.start = contents.find(key)
+		r.end = contents.find(endkey, (r.start + len(key)))
+		query = contents[(r.start + len(key)): r.end]
 		compound = ChemSpiPy.simplesearch(query)
 		url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
 
 		insert = query + " (csid:" + compound  +")"
-		blip.GetDocument().InsertText(range, insert)
+		blip.GetDocument().SetTextInRange(r, insert)
 
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
