@@ -28,7 +28,7 @@ import ChemSpiPy
 	#blip.GetDocument().SetAnnotation(range, 'link/manual', url)
 
     #else:
-        pass
+        #pass
 
 def OnBlipSubmitted(properties, context):
 	blip = context.GetBlipById(properties['blipId'])
