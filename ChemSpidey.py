@@ -17,17 +17,17 @@ from waveapi import robot
 
 import ChemSpiPy
 
-def SetManualLink(blip, text, url):
-    """Aims to find text in the passed blip and then create link via setting annotation."""
+#def SetManualLink(blip, text, url):
+    #"""Aims to find text in the passed blip and then create link via setting annotation."""
 
     #blip = context.GetBlipByID(properties['blipID']
-    contents = blip.GetDocument().GetText()
-    if text in contents:
-        start = contents.find(text)
-        range = [start: (start + len(text))]
-	blip.GetDocument().SetAnnotation(range, 'link/manual', url)
+    #contents = blip.GetDocument().GetText()
+    #if text in contents:
+        #start = contents.find(text)
+        #range = [start:(start + len(text))]
+	#blip.GetDocument().SetAnnotation(range, 'link/manual', url)
 
-    else:
+    #else:
         pass
 
 def OnBlipSubmitted(properties, context):
