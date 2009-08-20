@@ -36,10 +36,10 @@ def OnBlipSubmitted(properties, context):
     contents = blip.GetDocument().GetText()
     key = '(chem)'
     leftdelim = '(\\[)'
-    querysize = '(.[1,20])'
+    querysize = '(.{1,20})'
     optintspacer = '(;)?'
-    optfloat = '(\\d*\\.\\d*)?'
-    optunits = '(.[1,2])?'
+    optfloat = '(.?\\d*\\.\\d*)?'
+    optunits = '(.{1,2})?'
     optional  = optintspacer + optfloat + optunits
     rightdelim = '(\\])'
 
@@ -57,13 +57,14 @@ def OnBlipSubmitted(properties, context):
             compound = ChemSpiPy.simplesearch(query)
             url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
             insert = query + " (csid:" + compound 
-                if chemicalname.group(5) != None and chemicalname.group(6) == 'mg':
-                    millimoles = float(chemicalname.group(5))/compound.molweight
-                    insert.append(" " + millimoles + " millimoles")
 
-                if chemicalname.group(5) != None and chemicalname.group(6) == 'g':
-                    moles = float(chemicalname.group(5))/compound.molweight
-                    insert.append(" " + moles + " moles")
+            if chemicalname.group(5) != None and chemicalname.group(6) == 'mg':
+                millimoles = float(chemicalname.group(5))/compound.molweight
+                insert.append(" " + millimoles + " millimoles")
+
+            if chemicalname.group(5) != None and chemicalname.group(6) == 'g':
+                moles = float(chemicalname.group(5))/compound.molweight
+                insert.append(" " + moles + " moles")
 
             insert.append(")")
                     
