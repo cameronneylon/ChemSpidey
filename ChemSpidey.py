@@ -35,21 +35,21 @@ def OnBlipSubmitted(properties, context):
     blip = context.GetBlipById(properties['blipId'])
     contents = blip.GetDocument().GetText()
     key = '(chem)'
-    leftdelim = '(\\[)'
-    querysize = '(.{1,20})'
-    optintspacer = '(;)?'
-    optfloat = '(.?\\d*\\.\\d*)?'
-    optunits = '(.{1,2})?'
+    leftdelim = '\\['
+    query = '([a-zA-Z0-9-]{1,20})'
+    optintspacer = ';?'
+    optfloat = '\\s?(\\d{0,5}\\.?\\d{0,5})?'
+    optunits = '\\s?([mgl]{1,2})?'
     optional  = optintspacer + optfloat + optunits
-    rightdelim = '(\\])'
+    rightdelim = '\\]'
 
-    compiledregex = re.compile(key+leftdelim+querysize+optional+rightdelim, re.IGNORECASE|re.DOTALL)
-    usertextlist = compiledregex.finditer(contents)
+    compiledregex = re.compile(key+leftdelim+query+optional+rightdelim, re.IGNORECASE|re.DOTALL)
+    chemicallist = compiledregex.finditer(contents)
 
-    if usertextlist != None:
+    if chemicallist != None:
         count = 0
         changeslist = []
-        for chemicalname in usertextlist: 
+        for chemicalname in chemicallist: 
             r = doc.Range(0,0)
             r.start = chemicalname.start()
             r.end = chemicalname.end() + 1
@@ -58,15 +58,15 @@ def OnBlipSubmitted(properties, context):
             url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
             insert = query + " (csid:" + compound 
 
-            if chemicalname.group(5) != None and chemicalname.group(6) == 'mg':
-                millimoles = float(chemicalname.group(5))/compound.molweight
-                insert.append(" " + millimoles + " millimoles")
+            if chemicalname.group(3) != None and chemicalname.group(4) == 'mg':
+                millimoles = float(chemicalname.group(3))/compound.molweight()
+                insert = insert + ", " + chemicalname.group(3) + 'mg, ' + str(millimoles) + " millimoles"
 
-            if chemicalname.group(5) != None and chemicalname.group(6) == 'g':
-                moles = float(chemicalname.group(5))/compound.molweight
-                insert.append(" " + moles + " moles")
+            if chemicalname.group(3) != None and chemicalname.group(4) == 'g':
+                moles = float(chemicalname.group(3))/compound.molweight()
+                insert = insert + ", " + chemicalname.group(3) + 'g, ' + str(moles) + " moles"
 
-            insert.append(")")
+            insert = insert + ") "
                     
             changeslist.append([r, insert, compound, url])
             count = count + 1
