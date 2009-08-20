@@ -1,5 +1,6 @@
 import urllib
 from xml.etree import cElementTree as ET
+import unittest
 
 
 class ChemSpiderId(str):
@@ -15,7 +16,9 @@ class ChemSpiderId(str):
 
         """
 
-        self.id = ""
+        self.id = ''
+        self.image = ''
+        self.molwt = ''
 
         if type(csid) == str and csid.isdigit() == True:
             self.id = csid
@@ -39,9 +42,43 @@ class ChemSpiderId(str):
 
         assert self != '', 'ChemSpiderId not initialised with value'
 
-        baseurl = 'http://www.chemspider.com/'
-        url = baseurl + 'ImagesHandler.ashx?id=%s' % self
-        return url
+        if self.image == '':
+            baseurl = 'http://www.chemspider.com/'
+            url = baseurl + 'ImagesHandler.ashx?id=%s' % self
+            self.image = url
+            return url
+
+        else:
+            return self.image
+
+    def molweight(self):
+        """Poll the ChemSpider MS API for average mol wt for a specific Chemspider ID."""
+
+        assert self != '', 'ChemSpiderID not initialised with value'
+ 
+        if self.molwt == '':
+            baseurl = 'http://www.chemspider.com/'
+            token  = '3a19d00d-874f-4879-adc0-3013dbecbbc9'
+
+            # Construct a search URL and poll Chemspider for the XML result
+            searchurl = baseurl + 'MassSpecAPI.asmx/GetExtendedCompoundInfo?CSID=' + self.id + '&token=' + token
+
+            response = urllib.urlopen(searchurl)
+
+            tree = ET.parse(response) #parse the CS XML response
+            elem = tree.getroot()
+            csmolwt_tags = elem.getiterator('{http://www.chemspider.com/}MolecularWeight')
+
+            molwtlist = []
+            for tags in csmolwt_tags:
+                molwtlist.append(tags.text)
+
+            molecularweight = float(molwtlist[0])
+            self.molwt = molecularweight
+            return molecularweight
+
+
+            
 
 
 def simplesearch(query):
@@ -52,7 +89,7 @@ def simplesearch(query):
     simply returns a single object of the type ChemSpiderID
     """
 
-    #assert type(query) == str, 'query not a string object'
+    assert type(query) == str, 'query not a string object'
 
     baseurl = 'http://www.chemspider.com/'
     token  = '3a19d00d-874f-4879-adc0-3013dbecbbc9'
@@ -80,3 +117,27 @@ def simplesearch(query):
 #
 ########################################
 
+class TestChemSpiPy(unittest.TestCase):
+ 
+    def setUp(self):
+        self.testint = 236
+        self.teststring = '236'
+        self.testquery = 'benzene'
+        self.testimageurl = 'http://www.chemspider.com/ImagesHandler.ashx?id=236'
+        self.testmolwt = 78.1118
+ 
+    def testchemspiderid(self):
+        self.assertRaises(TypeError, ChemSpiderId, 1.2)
+        self.assertEqual(ChemSpiderId(self.teststring), self.teststring)
+        self.assertEqual(ChemSpiderId(self.testint), self.teststring)
+        self.assertEqual(ChemSpiderId(self.teststring).imageurl(), self.testimageurl)
+        self.assertEqual(ChemSpiderId(self.teststring).molweight(), self.testmolwt)
+
+ 
+    def testsimplesearch(self):
+        self.assertEqual(simplesearch(self.testquery), self.teststring)
+ 
+ 
+if __name__ == '__main__':
+    unittest.main()
+ 

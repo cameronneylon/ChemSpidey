@@ -35,9 +35,15 @@ def OnBlipSubmitted(properties, context):
     blip = context.GetBlipById(properties['blipId'])
     contents = blip.GetDocument().GetText()
     key = '(chem)'
-    delim = '(\\[.{1,40}\\])'
+    leftdelim = '(\\[)'
+    querysize = '(.[1,20])'
+    optintspacer = '(;)?'
+    optfloat = '(\\d*\\.\\d*)?'
+    optunits = '(.[1,2])?'
+    optional  = optintspacer + optfloat + optunits
+    rightdelim = '(\\])'
 
-    compiledregex = re.compile(key+delim, re.IGNORECASE|re.DOTALL)
+    compiledregex = re.compile(key+leftdelim+querysize+optional+rightdelim, re.IGNORECASE|re.DOTALL)
     usertextlist = compiledregex.finditer(contents)
 
     if usertextlist != None:
@@ -47,10 +53,20 @@ def OnBlipSubmitted(properties, context):
             r = doc.Range(0,0)
             r.start = chemicalname.start()
             r.end = chemicalname.end() + 1
-            query = chemicalname.group(2)[1:-1]
+            query = chemicalname.group(2)
             compound = ChemSpiPy.simplesearch(query)
             url = "http://www.chemspider.com/Chemical-Structure.%s.html" % compound
-            insert = query + " (csid:" + compound  +")"
+            insert = query + " (csid:" + compound 
+                if chemicalname.group(5) != None and chemicalname.group(6) == 'mg':
+                    millimoles = float(chemicalname.group(5))/compound.molweight
+                    insert.append(" " + millimoles + " millimoles")
+
+                if chemicalname.group(5) != None and chemicalname.group(6) == 'g':
+                    moles = float(chemicalname.group(5))/compound.molweight
+                    insert.append(" " + moles + " moles")
+
+            insert.append(")")
+                    
             changeslist.append([r, insert, compound, url])
             count = count + 1
 
