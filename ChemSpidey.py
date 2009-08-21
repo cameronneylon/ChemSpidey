@@ -19,7 +19,7 @@ import re
 
 import ChemSpiPy
 
-def SetManualLink(blip, text, url):
+def SetManualLink(blip, text, value, key='link/manual'):
     """Aims to find text in the passed blip and then create link via setting annotation."""
 
     contents = blip.GetDocument().GetText()
@@ -27,7 +27,7 @@ def SetManualLink(blip, text, url):
         r = doc.Range()
 	r.start = contents.find(text)
         r.end = r.start + len(text)
-	blip.GetDocument().SetAnnotation(r, 'link/manual', url)
+	blip.GetDocument().SetAnnotation(r, key, value)
 
 
 
@@ -59,12 +59,14 @@ def OnBlipSubmitted(properties, context):
             insert = query + " (csid:" + compound 
 
             if chemicalname.group(3) != None and chemicalname.group(4) == 'mg':
-                millimoles = float(chemicalname.group(3))/compound.molweight()
-                insert = insert + ", " + chemicalname.group(3) + 'mg, ' + str(millimoles) + " millimoles"
+                nanomoles = 1000*(float(chemicalname.group(3))/compound.molweight())
+                nanomoles = round(nanomoles, 2)
+                insert = insert + ", " + chemicalname.group(3) + 'mg, ' + str(nanomoles) + " nanomoles"
 
             if chemicalname.group(3) != None and chemicalname.group(4) == 'g':
-                moles = float(chemicalname.group(3))/compound.molweight()
-                insert = insert + ", " + chemicalname.group(3) + 'g, ' + str(moles) + " moles"
+                millimoles = 1000*(float(chemicalname.group(3))/compound.molweight())
+                millimoles = round(millimoles, 2)
+                insert = insert + ", " + chemicalname.group(3) + 'g, ' + str(millimoles) + " millimoles"
 
             insert = insert + ") "
                     
@@ -74,20 +76,21 @@ def OnBlipSubmitted(properties, context):
         while count != 0:
             count = count - 1
             blip.GetDocument().SetTextInRange(changeslist[count][0], changeslist[count][1])
-            SetManualLink(blip, changeslist[count][2], changeslist[count][3]) 
+            SetManualLink(blip, changeslist[count][2], changeslist[count][3])
+            SetManualLink(blip, changeslist[count][1], 'chem', 'lang')
             
 
 def OnRobotAdded(properties, context):
   """Invoked when the robot has been added."""
   root_wavelet = context.GetRootWavelet()
-  root_wavelet.CreateBlip().GetDocument().SetText("Hello, I'm ChemSpidey, I will convert text of the form chem:chemicalName: to a link to ChemSpider")
+  root_wavelet.CreateBlip().GetDocument().SetText("Hello, I'm ChemSpidey, I will convert text of the form chem[chemicalName] to a link to ChemSpider. If you add a semicolon and a weight in g or mg within the square brackets I will also calculate ththe number of moles for you. This is Version 3 of ChemSpidey")
 
 
 
 if __name__ == '__main__':
-  ChemSpidey = robot.Robot('cameronneylon-test',
+  ChemSpidey = robot.Robot('chemspidey',
                          image_url='http://www.chemspider.com/ImagesHandler.ashx?id=236',
-			 version = '2',
+			 version = '3',
                          profile_url='http://www.google.com')
   ChemSpidey.RegisterHandler(events.BLIP_SUBMITTED, OnBlipSubmitted)
   ChemSpidey.RegisterHandler(events.WAVELET_SELF_ADDED, OnRobotAdded)
